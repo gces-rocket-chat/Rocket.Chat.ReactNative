@@ -7,15 +7,29 @@ import { localAuthenticate, saveLastLocalAuthenticationSession } from '../utils/
 import { APP_STATE } from '../actions/actionsTypes';
 import { ROOT_OUTSIDE } from '../actions/app';
 
+function* getApplicationRoot() {
+	const applicationRoot = yield select(state => state.app.root);
+
+	return applicationRoot;
+}
+
+function* getAuthentication() {
+	const authentication = yield select(state => state.login.isAuthenticated);
+
+	return authentication;
+}
+
+function* getLocalAuthentication() {
+	const localAuthenticated = yield select(state => state.login.isLocalAuthenticated);
+
+	return localAuthenticated;
+}
+
 const appHasComeBackToForeground = function* appHasComeBackToForeground() {
-	const appRoot = yield select(state => state.app.root);
-	if (appRoot === ROOT_OUTSIDE) {
+	if (getApplicationRoot() === ROOT_OUTSIDE || !getAuthentication()) {
 		return;
 	}
-	const auth = yield select(state => state.login.isAuthenticated);
-	if (!auth) {
-		return;
-	}
+
 	try {
 		const server = yield select(state => state.server.server);
 		yield localAuthenticate(server);
@@ -27,18 +41,10 @@ const appHasComeBackToForeground = function* appHasComeBackToForeground() {
 };
 
 const appHasComeBackToBackground = function* appHasComeBackToBackground() {
-	const appRoot = yield select(state => state.app.root);
-	if (appRoot === ROOT_OUTSIDE) {
+	if (getApplicationRoot() === ROOT_OUTSIDE || !getAuthentication() || !getLocalAuthentication()) {
 		return;
 	}
-	const auth = yield select(state => state.login.isAuthenticated);
-	if (!auth) {
-		return;
-	}
-	const localAuthenticated = yield select(state => state.login.isLocalAuthenticated);
-	if (!localAuthenticated) {
-		return;
-	}
+
 	try {
 		const server = yield select(state => state.server.server);
 		yield saveLastLocalAuthenticationSession(server);
