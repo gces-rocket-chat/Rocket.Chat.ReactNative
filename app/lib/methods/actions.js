@@ -33,7 +33,6 @@ const invalidateTriggerId = (id) => {
 export const generateTriggerId = (appId) => {
 	const triggerId = random(17);
 	triggersId.set(triggerId, appId);
-
 	return triggerId;
 };
 

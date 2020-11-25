@@ -516,8 +516,12 @@ const RocketChat = {
 	},
 	logout,
 	logoutOtherLocations() {
-		const { id: userId } = reduxStore.getState().login.user;
-		return this.sdk.post('users.removeOtherTokens', { userId });
+		const {
+			id: userId
+		} = reduxStore.getState().login.user;
+		return this.sdk.post('users.removeOtherTokens', {
+			userId
+		});
 	},
 	removeServer,
 	async clearCache({ server }) {
@@ -577,7 +581,11 @@ const RocketChat = {
 	readMessages,
 	resendMessage,
 
-	async search({ text, filterUsers = true, filterRooms = true }) {
+	async search({
+		text,
+		filterUsers = true,
+		filterRooms = true
+	}) {
 		const searchText = text.trim();
 
 		if (this.oldPromise) {
@@ -623,8 +631,14 @@ const RocketChat = {
 		const usernames = data.map(sub => sub.name);
 		try {
 			if (data.length < 7) {
-				const { users, rooms } = await Promise.race([
-					RocketChat.spotlight(searchText, usernames, { users: filterUsers, rooms: filterRooms }),
+				const {
+					users,
+					rooms
+				} = await Promise.race([
+					RocketChat.spotlight(searchText, usernames, {
+						users: filterUsers,
+						rooms: filterRooms
+					}),
 					new Promise((resolve, reject) => this.oldPromise = reject)
 				]);
 				if (filterUsers) {
@@ -652,10 +666,9 @@ const RocketChat = {
 			}
 			delete this.oldPromise;
 			return data;
-		} catch (e) {
-			console.warn(e);
+		} catch (error) {
+			console.warn(error);
 			return data;
-			// return [];
 		}
 	},
 

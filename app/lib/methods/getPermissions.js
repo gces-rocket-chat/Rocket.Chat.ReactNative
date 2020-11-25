@@ -38,7 +38,9 @@ const updatePermissions = async({ update = [], remove = [], allRecords }) => {
 		permissionsToCreate = update.filter(i1 => !allRecords.find(i2 => i1._id === i2.id));
 		permissionsToUpdate = allRecords.filter(i1 => update.find(i2 => i1.id === i2._id));
 		permissionsToCreate = permissionsToCreate.map(permission => permissionsCollection.prepareCreate(protectedFunction((p) => {
-			p._raw = sanitizedRaw({ id: permission._id }, permissionsCollection.schema);
+			p._raw = sanitizedRaw({
+				id: permission._id
+			}, permissionsCollection.schema);
 			Object.assign(p, permission);
 		})));
 		permissionsToUpdate = permissionsToUpdate.map((permission) => {
