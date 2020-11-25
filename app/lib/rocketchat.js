@@ -22,6 +22,7 @@ import { disconnect, connectSuccess, connectRequest } from '../actions/connect';
 import { shareSelectServer, shareSetUser, shareSetSettings } from '../actions/share';
 
 import subscribeRooms from './methods/subscriptions/rooms';
+import unsubscribeRooms from './rooms';
 import getUsersPresence, { getUserPresence, subscribeUsersPresence } from './methods/getUsersPresence';
 
 import protectedFunction from './methods/helpers/protectedFunction';
@@ -75,21 +76,8 @@ const RocketChat = {
 	TOKEN_KEY,
 	CURRENT_SERVER,
 	callJitsi,
-	async subscribeRooms() {
-		if (!this.roomsSub) {
-			try {
-				this.roomsSub = await subscribeRooms.call(this);
-			} catch (e) {
-				log(e);
-			}
-		}
-	},
-	unsubscribeRooms() {
-		if (this.roomsSub) {
-			this.roomsSub.stop();
-			this.roomsSub = null;
-		}
-	},
+	subscribeRooms,
+	unsubscribeRooms,
 	canOpenRoom,
 	createChannel({
 		name, users, type, readOnly, broadcast, encrypted
@@ -163,12 +151,11 @@ const RocketChat = {
 	stopListener(listener) {
 		return listener && listener.stop();
 	},
-	// Abort all requests and create a new AbortController
-	abort() {
+	abortRequests() {
 		if (this.controller) {
-			this.controller.abort();
+			this.controller.abortRequests();
 			if (this.sdk) {
-				this.sdk.abort();
+				this.sdk.abortRequests();
 			}
 		}
 		this.controller = new AbortController();
@@ -526,8 +513,8 @@ const RocketChat = {
 			await serversDB.action(async() => {
 				const serverCollection = serversDB.collections.get('servers');
 				const serverRecord = await serverCollection.find(server);
-				await serverRecord.update((s) => {
-					s.roomsUpdatedAt = null;
+				await serverRecord.update((recServer) => {
+					recServer.roomsUpdatedAt = null;
 				});
 			});
 		} catch (e) {
