@@ -12,8 +12,9 @@ const getUpdatedSince = (allEmojis) => {
 	if (!allEmojis.length) {
 		return null;
 	}
-	const ordered = orderBy(allEmojis.filter(item => item._updatedAt !== null), ['_updatedAt'], ['desc']);
-	return ordered && ordered[0]._updatedAt.toISOString();
+	const ordered = orderBy(allEmojis.filter(item => item._updatedAt !== null), 
+		['_updatedAt'], ['desc']);
+	return (ordered && ordered[0]._updatedAt.toISOString());
 };
 
 const updateEmojis = async({ update = [], remove = [], allRecords }) => {
@@ -31,7 +32,9 @@ const updateEmojis = async({ update = [], remove = [], allRecords }) => {
 		emojisToCreate = update.filter(i1 => !allRecords.find(i2 => i1._id === i2.id));
 		emojisToUpdate = allRecords.filter(i1 => update.find(i2 => i1.id === i2._id));
 		emojisToCreate = emojisToCreate.map(emoji => emojisCollection.prepareCreate((e) => {
-			e._raw = sanitizedRaw({ id: emoji._id }, emojisCollection.schema);
+			e._raw = sanitizedRaw({
+				id: emoji._id
+			}, emojisCollection.schema);
 			Object.assign(e, emoji);
 		}));
 		emojisToUpdate = emojisToUpdate.map((emoji) => {
@@ -60,7 +63,6 @@ const updateEmojis = async({ update = [], remove = [], allRecords }) => {
 		log(e);
 	}
 };
-
 export async function setCustomEmojis() {
 	const db = database.active;
 	const emojisCollection = db.collections.get('custom_emojis');

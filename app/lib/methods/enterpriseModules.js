@@ -24,8 +24,8 @@ export async function setEnterpriseModules() {
 			return;
 		}
 		reduxStore.dispatch(clearEnterpriseModules());
-	} catch (e) {
-		log(e);
+	} catch (error) {
+		log(error);
 	}
 }
 
