@@ -59,6 +59,8 @@ import UserPreferences from './userPreferences';
 import { Encryption } from './encryption';
 import EventEmitter from '../utils/events';
 import { sanitizeLikeString } from './database/utils';
+import { hasPermission } from './permissions';
+import { loginWithPassword, loginOAuthOrSso } from './auth';
 
 const TOKEN_KEY = 'reactnativemeteor_usertoken';
 const CURRENT_SERVER = 'currentServer';
@@ -91,6 +93,7 @@ const RocketChat = {
 		}
 	},
 	canOpenRoom,
+	hasPermission,
 	createChannel({
 		name, users, type, readOnly, broadcast, encrypted
 	}) {
@@ -463,34 +466,8 @@ const RocketChat = {
 			}
 		});
 	},
-
-	loginWithPassword({ user, password }) {
-		let params = { user, password };
-		const state = reduxStore.getState();
-
-		if (state.settings.LDAP_Enable) {
-			params = {
-				username: user,
-				ldapPass: password,
-				ldap: true,
-				ldapOptions: {}
-			};
-		} else if (state.settings.CROWD_Enable) {
-			params = {
-				username: user,
-				crowdPassword: password,
-				crowd: true
-			};
-		}
-
-		return this.loginTOTP(params, true);
-	},
-
-	async loginOAuthOrSso(params) {
-		const result = await this.login(params);
-		reduxStore.dispatch(loginRequest({ resume: result.token }));
-	},
-
+	loginWithPassword,
+	loginOAuthOrSso,
 	async login(params, loginEmailPassword) {
 		const sdk = this.shareSDK || this.sdk;
 		// RC 0.64.0
@@ -1083,47 +1060,6 @@ const RocketChat = {
 		const userRoles = (shareUser?.roles || loginUser?.roles) || [];
 
 		return userRoles.indexOf(r => r === role) > -1;
-	},
-	async hasPermission(permissions, rid) {
-		const db = database.active;
-		const subsCollection = db.collections.get('subscriptions');
-		const permissionsCollection = db.collections.get('permissions');
-		let roomRoles = [];
-		try {
-			// get the room from database
-			const room = await subsCollection.find(rid);
-			// get room roles
-			roomRoles = room.roles || [];
-		} catch (error) {
-			console.log('hasPermission -> Room not found');
-			return permissions.reduce((result, permission) => {
-				result[permission] = false;
-				return result;
-			}, {});
-		}
-		// get permissions from database
-		try {
-			const permissionsFiltered = await permissionsCollection.query(Q.where('id', Q.oneOf(permissions))).fetch();
-			const shareUser = reduxStore.getState().share.user;
-			const loginUser = reduxStore.getState().login.user;
-			// get user roles on the server from redux
-			const userRoles = (shareUser?.roles || loginUser?.roles) || [];
-			// merge both roles
-			const mergedRoles = [...new Set([...roomRoles, ...userRoles])];
-
-			// return permissions in object format
-			// e.g. { 'edit-room': true, 'set-readonly': false }
-			return permissions.reduce((result, permission) => {
-				result[permission] = false;
-				const permissionFound = permissionsFiltered.find(p => p.id === permission);
-				if (permissionFound) {
-					result[permission] = returnAnArray(permissionFound.roles).some(r => mergedRoles.includes(r));
-				}
-				return result;
-			}, {});
-		} catch (e) {
-			log(e);
-		}
 	},
 	getAvatarSuggestion() {
 		// RC 0.51.0
