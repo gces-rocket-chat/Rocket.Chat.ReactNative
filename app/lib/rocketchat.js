@@ -59,7 +59,8 @@ import UserPreferences from './userPreferences';
 import { Encryption } from './encryption';
 import EventEmitter from '../utils/events';
 import { sanitizeLikeString } from './database/utils';
-import hasPermission from './permissions';
+import { hasPermission } from './permissions';
+import { loginWithPassword, loginOAuthOrSso } from './auth';
 
 const TOKEN_KEY = 'reactnativemeteor_usertoken';
 const CURRENT_SERVER = 'currentServer';
@@ -465,34 +466,8 @@ const RocketChat = {
 			}
 		});
 	},
-
-	loginWithPassword({ user, password }) {
-		let params = { user, password };
-		const state = reduxStore.getState();
-
-		if (state.settings.LDAP_Enable) {
-			params = {
-				username: user,
-				ldapPass: password,
-				ldap: true,
-				ldapOptions: {}
-			};
-		} else if (state.settings.CROWD_Enable) {
-			params = {
-				username: user,
-				crowdPassword: password,
-				crowd: true
-			};
-		}
-
-		return this.loginTOTP(params, true);
-	},
-
-	async loginOAuthOrSso(params) {
-		const result = await this.login(params);
-		reduxStore.dispatch(loginRequest({ resume: result.token }));
-	},
-
+	loginWithPassword,
+	loginOAuthOrSso,
 	async login(params, loginEmailPassword) {
 		const sdk = this.shareSDK || this.sdk;
 		// RC 0.64.0

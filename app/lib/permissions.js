@@ -4,7 +4,7 @@ import database from './database';
 import returnAnArray from './rocketchat';
 import log from '../utils/log';
 
-const hasPermission = async(permissions, rid) => {
+export async function hasPermission(permissions, rid) {
 	const db = database.active;
 	const subsCollection = db.collections.get('subscriptions');
 	const permissionsCollection = db.collections.get('permissions');
@@ -35,8 +35,4 @@ const hasPermission = async(permissions, rid) => {
 	} catch (e) {
 		log(e);
 	}
-};
-
-export default {
-	hasPermission
-};
+}
