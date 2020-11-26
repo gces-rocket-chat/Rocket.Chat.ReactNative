@@ -1350,67 +1350,11 @@ const RocketChat = {
 			query, count, offset, sort
 		});
 	},
-	async canAutoTranslate() {
-		const db = database.active;
-		try {
-			const AutoTranslate_Enabled = reduxStore.getState().settings && reduxStore.getState().settings.AutoTranslate_Enabled;
-			if (!AutoTranslate_Enabled) {
-				return false;
-			}
-			const permissionsCollection = db.collections.get('permissions');
-			const autoTranslatePermission = await permissionsCollection.find('auto-translate');
-			const userRoles = (reduxStore.getState().login.user && reduxStore.getState().login.user.roles) || [];
-			return autoTranslatePermission.roles.some(role => userRoles.includes(role));
-		} catch (e) {
-			log(e);
-			return false;
-		}
-	},
-	saveAutoTranslate({
-		rid, field, value, options
-	}) {
-		return this.methodCallWrapper('autoTranslate.saveSettings', rid, field, value, options);
-	},
-	getSupportedLanguagesAutoTranslate() {
-		return this.methodCallWrapper('autoTranslate.getSupportedLanguages', 'en');
-	},
-	translateMessage(message, targetLanguage) {
-		return this.methodCallWrapper('autoTranslate.translateMessage', message, targetLanguage);
-	},
 	getSenderName(sender) {
 		const { UI_Use_Real_Name: useRealName } = reduxStore.getState().settings;
 		return useRealName ? sender.name : sender.username;
-	},
-	getRoomTitle(room) {
-		const { UI_Use_Real_Name: useRealName, UI_Allow_room_names_with_special_chars: allowSpecialChars } = reduxStore.getState().settings;
-		const { username } = reduxStore.getState().login.user;
-		if (RocketChat.isGroupChat(room) && !(room.name && room.name.length)) {
-			return room.usernames.filter(u => u !== username).sort((u1, u2) => u1.localeCompare(u2)).join(', ');
-		}
-		if (allowSpecialChars && room.t !== 'd') {
-			return room.fname || room.name;
-		}
-		return ((room.prid || useRealName) && room.fname) || room.name;
-	},
-	getRoomAvatar(room) {
-		if (RocketChat.isGroupChat(room)) {
-			return room.uids?.length + room.usernames?.join();
-		}
-		return room.prid ? room.fname : room.name;
-	},
-
-	findOrCreateInvite({ rid, days, maxUses }) {
-		// RC 2.4.0
-		return this.post('findOrCreateInvite', { rid, days, maxUses });
-	},
-	validateInviteToken(token) {
-		// RC 2.4.0
-		return this.post('validateInviteToken', { token });
-	},
-	useInviteToken(token) {
-		// RC 2.4.0
-		return this.post('useInviteToken', { token });
 	}
+	
 };
 
 export default RocketChat;
