@@ -6,7 +6,6 @@ import {
 } from '@rocket.chat/sdk';
 import { Q } from '@nozbe/watermelondb';
 import AsyncStorage from '@react-native-community/async-storage';
-import { sanitizedRaw } from '@nozbe/watermelondb/RawRecord';
 import RNFetchBlob from 'rn-fetch-blob';
 
 import reduxStore from './createStore';
@@ -24,7 +23,6 @@ import { shareSelectServer, shareSetUser, shareSetSettings } from '../actions/sh
 import subscribeRooms from './methods/subscriptions/rooms';
 import getUsersPresence, { getUserPresence, subscribeUsersPresence } from './methods/getUsersPresence';
 
-import protectedFunction from './methods/helpers/protectedFunction';
 import readMessages from './methods/readMessages';
 import getSettings, { getLoginSettings, setSettings } from './methods/getSettings';
 
@@ -57,7 +55,6 @@ import { selectServerFailure } from '../actions/server';
 import { useSsl } from '../utils/url';
 import UserPreferences from './userPreferences';
 import { Encryption } from './encryption';
-import EventEmitter from '../utils/events';
 import { sanitizeLikeString } from './database/utils';
 
 const TOKEN_KEY = 'reactnativemeteor_usertoken';
