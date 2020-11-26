@@ -6,8 +6,8 @@ const Rooms = {
 		if (!this.roomsSub) {
 			try {
 				this.roomsSub = await subscribeRooms.call(this);
-			} catch (e) {
-				log(e);
+			} catch (error) {
+				log(error);
 			}
 		}
 	},
