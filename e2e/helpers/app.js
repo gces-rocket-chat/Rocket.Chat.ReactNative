@@ -3,8 +3,8 @@ const {
 } = require('detox');
 const data = require('../data');
 
-async function waitForToBeVisible(element, timeout) {
-    await waitFor(element).toBeVisible().withTimeout(timeout);
+async function waitForToBeVisible(component, timeout) {
+    await waitFor(component).toBeVisible().withTimeout(timeout);
 }
 
 async function navigateToWorkspace() {
