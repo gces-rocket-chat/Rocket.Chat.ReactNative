@@ -1,5 +1,4 @@
 const Invite = {
-
     findOrCreateInvite({ rid, days, maxUses }) {
 		// RC 2.4.0
 		return this.post('findOrCreateInvite', { rid, days, maxUses });

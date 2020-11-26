@@ -1,5 +1,6 @@
-const Room = {
+import RocketChat from '../rocketchat';
 
+const Room = {
     getRoomTitle(room) {
 		const { UI_Use_Real_Name: useRealName, UI_Allow_room_names_with_special_chars: allowSpecialChars } = reduxStore.getState().settings;
 		const { username } = reduxStore.getState().login.user;
